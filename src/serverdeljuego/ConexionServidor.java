@@ -1,5 +1,6 @@
 package serverdeljuego;
 
+import modelos.flujo.ObjetoDato;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -33,37 +34,38 @@ public class ConexionServidor {
             ex.printStackTrace();
         }
     }
+
     private static void manejarComunicacion(Socket clienteOrigen, Socket clienteDestino) {
-    try {
-        // Streams de objetos para el cliente de origen
-        ObjectInputStream in = new ObjectInputStream(clienteOrigen.getInputStream());
-        ObjectOutputStream out = new ObjectOutputStream(clienteDestino.getOutputStream());
+        try {
+            // Streams de objetos para el cliente de origen
+            ObjectInputStream in = new ObjectInputStream(clienteOrigen.getInputStream());
+            ObjectOutputStream out = new ObjectOutputStream(clienteDestino.getOutputStream());
 
-        while (true) {
+            while (true) {
+                try {
+                    // Leer objeto del cliente de origen
+                    ObjetoDato objetoRecibido = (ObjetoDato) in.readObject();
+                    System.out.println("hobjeto");
+                    // Enviar objeto al cliente destino
+                    out.writeObject(objetoRecibido);
+                    out.flush();
+                } catch (SocketException se) {
+                    // La conexión se cerró inesperadamente, salir del bucle
+                    System.out.println("Conexión con cliente cerrada.");
+                    break;
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
             try {
-                // Leer objeto del cliente de origen
-                Object objetoRecibido = in.readObject();
-
-                // Enviar objeto al cliente destino
-                out.writeObject(objetoRecibido);
-                out.flush();
-            } catch (SocketException se) {
-                // La conexión se cerró inesperadamente, salir del bucle
-                System.out.println("Conexión con cliente cerrada.");
-                break;
+                // Cerrar sockets y streams al salir
+                clienteOrigen.close();
+                clienteDestino.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-
-    } catch (Exception ex) {
-        ex.printStackTrace();
-    } finally {
-        try {
-            // Cerrar sockets y streams al salir
-            clienteOrigen.close();
-            clienteDestino.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
-}
 }
