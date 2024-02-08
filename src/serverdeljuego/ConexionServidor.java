@@ -43,7 +43,6 @@ public class ConexionServidor {
                 try {
                     // Leer objeto del cliente de origen
                     ObjetoDato objetoRecibido = (ObjetoDato) in.readObject();
-                    System.out.println("hobjeto");
                     // Enviar objeto al cliente destino
                     out.writeObject(objetoRecibido);
                     out.flush();
